@@ -537,18 +537,24 @@
         
         // 초기화
         function initializeUI() {
+            console.log('Initializing UI...');
+            console.log('Model selection element:', elements.modelSelection);
             elements.apiProvider.value = state.apiProvider;
             updateModelSelection();
             updateAPIKeyUI();
             if (state.apiKey) {
                 elements.apiKey.value = state.apiKey;
             }
+            console.log('UI initialized');
         }
         
         // 모델 선택 업데이트
         function updateModelSelection() {
             const provider = elements.apiProvider.value;
             const modelList = models[provider];
+            
+            console.log('Updating model selection for:', provider);
+            console.log('Model list:', modelList);
             
             elements.modelSelection.innerHTML = '';
             modelList.forEach(model => {
@@ -558,12 +564,16 @@
                 elements.modelSelection.appendChild(option);
             });
             
+            console.log('Added', modelList.length, 'options to select');
+            
             if (state.model && modelList.find(m => m.value === state.model)) {
                 elements.modelSelection.value = state.model;
             } else {
                 elements.modelSelection.value = modelList[0].value;
                 state.model = modelList[0].value;
             }
+            
+            console.log('Selected model:', state.model);
         }
         
         // API Key UI 업데이트
@@ -605,7 +615,12 @@
             localStorage.setItem('apiKey', state.apiKey);
         });
         
-        initializeUI();
+        // DOM이 완전히 로드된 후 초기화
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeUI);
+        } else {
+            initializeUI();
+        }
         
         // 텍스트 통계 유틸
         function tokenize(text) {
