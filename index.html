@@ -212,6 +212,25 @@
             margin-bottom: 0.5rem;
         }
         
+        .comparison-summary {
+            border: 1px solid #000;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .comparison-summary h4 {
+            margin-bottom: 0.5rem;
+        }
+        .comparison-summary table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.5rem;
+        }
+        .comparison-summary th, .comparison-summary td {
+            border: 1px solid #000;
+            padding: 0.5rem;
+            text-align: left;
+        }
+        
         .alert {
             padding: 1rem;
             margin-bottom: 1rem;
@@ -375,6 +394,17 @@
             </div>
             
             <div class="form-group">
+                <label class="form-label">원문 (선택)</label>
+                <textarea 
+                    class="form-control" 
+                    id="originalText" 
+                    placeholder="원문 텍스트를 입력하세요 (문항과 비교 분석됩니다)"
+                    rows="8"
+                ></textarea>
+                <div class="hint">원문을 입력하면 문항 변형 분석, 유사도, 단어수, Lexile 지수를 제공합니다</div>
+            </div>
+            
+            <div class="form-group">
                 <label class="form-label">문제 본문</label>
                 <textarea 
                     class="form-control" 
@@ -477,6 +507,7 @@
             apiKeyHint: document.getElementById('apiKeyHint'),
             toggleApiKey: document.getElementById('toggleApiKey'),
             source: document.getElementById('source'),
+            originalText: document.getElementById('originalText'),
             question: document.getElementById('question'),
             choices: document.getElementById('choices'),
             answer: document.getElementById('answer'),
@@ -564,6 +595,26 @@
         
         initializeUI();
         
+        // 텍스트 통계 유틸
+        function tokenize(text) {
+            return (text || '')
+                .toLowerCase()
+                .replace(/[^a-z0-9가-힣\s]/gi, ' ')
+                .split(/\s+/)
+                .filter(Boolean);
+        }
+        function wordCount(text) {
+            return tokenize(text).length;
+        }
+        function jaccardSimilarityTokens(aTokens, bTokens) {
+            const a = new Set(aTokens);
+            const b = new Set(bTokens);
+            let inter = 0;
+            a.forEach(t => { if (b.has(t)) inter++; });
+            const union = a.size + b.size - inter;
+            return union > 0 ? inter / union : 0;
+        }
+        
         // 알림 표시
         function showAlert(message, type = 'success') {
             const alert = document.createElement('div');
@@ -606,6 +657,7 @@
             try {
                 const prompt = generateAnalysisPrompt({
                     source: elements.source.value.trim(),
+                    originalText: elements.originalText.value.trim(),
                     question: elements.question.value.trim(),
                     choices: elements.choices.value.trim(),
                     answer: elements.answer.value.trim(),
@@ -624,6 +676,7 @@
                 
                 state.analysisData = {
                     source: elements.source.value.trim(),
+                    originalText: elements.originalText.value.trim(),
                     question: elements.question.value.trim(),
                     choices: elements.choices.value.trim(),
                     answer: elements.answer.value.trim(),
@@ -704,13 +757,13 @@
         
         // 분석 프롬프트 생성
         function generateAnalysisPrompt(data) {
-            return `당신은 KICE-Alpha, 대한민국 교육과정평가원 소속의 수능 영어 출제위원 AI입니다.
+            let promptText = `당신은 KICE-Alpha, 대한민국 교육과정평가원 소속의 수능 영어 출제위원 AI입니다.
 
 다음 수능 문항을 이원목적분류표 기반으로 종합 분석하고, 제공된 HTML 템플릿 구조에 맞춰 출력해주세요.
 
 ## 📋 문항 정보
 
-${data.source ? `**출처:** ${data.source}\n` : ''}**문제:**
+${data.source ? `**출처:** ${data.source}\n` : ''}${data.originalText ? `**원문:**\n${data.originalText}\n\n` : ''}**문제:**
 ${data.question}
 
 **선택지:**
@@ -721,6 +774,12 @@ ${data.answer ? `**정답:** ${data.answer}\n` : ''}${data.explanation ? `**기�
 ## 📊 분석 요청사항
 
 다음 HTML 템플릿 구조에 맞춰 분석 결과를 작성해주세요. 각 섹션을 빠짐없이 채워주시고, 교육평가 이론에 근거한 과학적 분석을 제공해주세요.
+
+특히, 원문이 제공된 경우 다음을 반드시 포함하세요:
+- 문항 생성 과정에서의 변형 유형 분석(요약, 재구성, 패러프레이즈, 정보 추가/삭제, 방해선지 설계 등)
+- 원문 vs 문항 텍스트 통계 표(단어수, 문장수, 평균 문장 길이, Lexile 추정치)
+- 원문 대비 문항의 어휘/구문/논리 구조 유사도(퍼센트)와 근거
+- 난이도 변화 분석(어휘·구조·내용 관점)
 
 \`\`\`html
 <div class="analysis-container">
@@ -736,8 +795,53 @@ ${data.answer ? `**정답:** ${data.answer}\n` : ''}${data.explanation ? `**기�
             <tr><td>배점</td><td>[2점 또는 3점]</td></tr>
             <tr><td>예상 정답률</td><td>[%]</td></tr>
             <tr><td>예상 변별도</td><td>[수치]</td></tr>
+            <tr><td>문항 단어수</td><td>[단어 수]</td></tr>
+            <tr><td>Lexile(문항, 추정)</td><td>[예: 1000L-1200L]</td></tr>
         </table>
     </section>
+    
+    ${data.originalText ? `
+    <section class="text-comparison">
+        <h2>원문 비교 분석</h2>
+        
+        <h3>텍스트 통계</h3>
+        <table>
+            <tr><th>항목</th><th>원문</th><th>문항</th></tr>
+            <tr><td>단어수</td><td>[원문 단어수]</td><td>[문항 단어수]</td></tr>
+            <tr><td>문장수</td><td>[원문 문장수]</td><td>[문항 문장수]</td></tr>
+            <tr><td>평균 문장 길이</td><td>[원문 평균]</td><td>[문항 평균]</td></tr>
+            <tr><td>Lexile(추정)</td><td>[원문 Lexile]</td><td>[문항 Lexile]</td></tr>
+        </table>
+        
+        <h3>유사도 분석</h3>
+        <ul>
+            <li><strong>전체 유사도:</strong> [0-100%]</li>
+            <li><strong>어휘 유사도:</strong> [0-100%]</li>
+            <li><strong>구문/구조 유사도:</strong> [0-100%]</li>
+        </ul>
+        
+        <h3>문항 변형 분석</h3>
+        <h4>추가된 내용</h4>
+        <ul>
+            <li>[추가된 내용 1]</li>
+        </ul>
+        <h4>삭제된 내용</h4>
+        <ul>
+            <li>[삭제된 내용 1]</li>
+        </ul>
+        <h4>변경된 내용</h4>
+        <ul>
+            <li>[원문 → 문항: 변경 설명]</li>
+        </ul>
+        
+        <h3>난이도 변화</h3>
+        <ul>
+            <li><strong>어휘 난이도:</strong> [상승/동등/하강] - [이유]</li>
+            <li><strong>구조 난이도:</strong> [상승/동등/하강] - [이유]</li>
+            <li><strong>내용 난이도:</strong> [상승/동등/하강] - [이유]</li>
+        </ul>
+    </section>
+    ` : ''}
     
     <section class="taxonomy">
         <h2>이원목적분류표 분석</h2>
@@ -878,6 +982,9 @@ ${data.answer ? `**정답:** ${data.answer}\n` : ''}${data.explanation ? `**기�
 3. 교육평가 이론에 근거한 과학적 분석을 제공해주세요
 4. 구체적이고 실용적인 내용으로 작성해주세요
 5. HTML 태그는 그대로 유지하고, 내용만 채워주세요`;
+        
+            return promptText;
+        }
         }
         
         // 분석 결과 표시
@@ -891,7 +998,31 @@ ${data.answer ? `**정답:** ${data.answer}\n` : ''}${data.explanation ? `**기�
                 htmlContent = analysisText;
             }
             
-            elements.analysisOutput.innerHTML = htmlContent;
+            // 원문 비교 요약 섹션 (클라이언트 계산)
+            let summary = '';
+            if (state.analysisData && state.analysisData.originalText) {
+                const original = state.analysisData.originalText || '';
+                const questionBlock = `${state.analysisData.question || ''}\n${state.analysisData.choices || ''}`;
+                const tokO = tokenize(original);
+                const tokQ = tokenize(questionBlock);
+                const wcO = tokO.length;
+                const wcQ = tokQ.length;
+                const sim = jaccardSimilarityTokens(tokO, tokQ);
+                const simPct = Math.round(sim * 100);
+                summary = `
+                <div class="comparison-summary">
+                    <h4>원문 대비 문항 비교 요약</h4>
+                    <table>
+                        <tr><th>지표</th><th>값</th></tr>
+                        <tr><td>원문 단어수</td><td>${wcO.toLocaleString()}</td></tr>
+                        <tr><td>문항 단어수</td><td>${wcQ.toLocaleString()}</td></tr>
+                        <tr><td>어휘 유사도 (Jaccard)</td><td>${simPct}%</td></tr>
+                        <tr><td>Lexile (예상)</td><td>아래 보고서의 메타정보/비교 표를 참조</td></tr>
+                    </table>
+                </div>`;
+            }
+            
+            elements.analysisOutput.innerHTML = summary + htmlContent;
             elements.analysisResult.classList.add('active');
         }
         
