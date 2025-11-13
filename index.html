@@ -3,251 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎓 수능 문항 분석 시스템 - 이원목적분류표 기반</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>수능 문항 분석 시스템</title>
     <style>
+        @page {
+            size: A4;
+            margin: 1.5cm;
+        }
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
         
-        :root {
-            --primary-color: #3498db;
-            --secondary-color: #9b59b6;
-            --success-color: #27ae60;
-            --danger-color: #e74c3c;
-            --warning-color: #f39c12;
-            --dark: #2c3e50;
-            --light: #ecf0f1;
-            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --gradient-2: linear-gradient(135deg, #3498db 0%, #2ecc71 100%);
-        }
-        
         body {
-            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-            background-attachment: fixed;
-            min-height: 100vh;
-            padding: 20px;
-            color: var(--dark);
-        }
-        
-        .container {
-            max-width: 1600px;
+            font-family: "Times New Roman", Times, serif;
+            font-size: 12pt;
+            line-height: 1.6;
+            color: #000;
+            background: #fff;
+            padding: 2rem;
+            max-width: 1400px;
             margin: 0 auto;
-            background: white;
-            border-radius: 25px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
-            overflow: hidden;
-            animation: fadeIn 0.6s ease-out;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
         }
         
         .header {
-            background: var(--gradient-1);
-            color: white;
-            padding: 40px;
             text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid #000;
         }
         
         .header h1 {
-            font-size: clamp(1.8rem, 4vw, 2.8rem);
-            margin-bottom: 15px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-size: 24pt;
             font-weight: 700;
+            margin-bottom: 0.5rem;
         }
         
         .header p {
-            font-size: clamp(0.9rem, 2vw, 1.2rem);
-            opacity: 0.95;
-            max-width: 900px;
-            margin: 0 auto;
-            line-height: 1.6;
+            font-size: 11pt;
+            color: #666;
         }
         
         .main-content {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            min-height: 800px;
+            gap: 3rem;
+            min-height: 600px;
         }
         
-        .input-panel, .output-panel {
-            padding: 40px;
+        .panel {
+            border: 1px solid #ddd;
+            padding: 2rem;
+            break-inside: avoid;
         }
         
-        .input-panel {
-            background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
-            border-right: 3px solid #dee2e6;
-            max-height: 900px;
-            overflow-y: auto;
-        }
-        
-        .output-panel {
-            background: #fff;
-            max-height: 900px;
-            overflow-y: auto;
-        }
-        
-        .input-panel::-webkit-scrollbar,
-        .output-panel::-webkit-scrollbar {
-            width: 10px;
-        }
-        
-        .input-panel::-webkit-scrollbar-track,
-        .output-panel::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        
-        .input-panel::-webkit-scrollbar-thumb {
-            background: var(--gradient-1);
-            border-radius: 5px;
-        }
-        
-        .output-panel::-webkit-scrollbar-thumb {
-            background: var(--gradient-2);
-            border-radius: 5px;
-        }
-        
-        .section-header {
-            background: var(--gradient-2);
-            color: white;
-            padding: 15px 20px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 1.1rem;
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        .panel-title {
+            font-size: 14pt;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #000;
         }
         
         .form-group {
-            margin-bottom: 25px;
-            animation: fadeInUp 0.5s ease-out;
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
-        }
-        
-        .form-group:hover {
-            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            margin-bottom: 1.5rem;
         }
         
         .form-label {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--dark);
-            margin-bottom: 12px;
             display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 11pt;
         }
         
         .form-control {
             width: 100%;
-            padding: 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            font-family: 'Noto Sans KR', sans-serif;
-            resize: vertical;
+            padding: 0.5rem;
+            border: 1px solid #000;
+            font-family: "Times New Roman", Times, serif;
+            font-size: 11pt;
+            line-height: 1.4;
         }
         
         .form-control:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
-            background: #f8fbff;
+            outline: 2px solid #000;
+            outline-offset: 2px;
         }
         
         textarea.form-control {
-            min-height: 120px;
-            line-height: 1.6;
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        select.form-control {
+            cursor: pointer;
+        }
+        
+        .hint {
+            font-size: 9pt;
+            color: #666;
+            font-style: italic;
+            margin-top: 0.25rem;
         }
         
         .api-key-input {
             position: relative;
         }
         
-        .api-key-input input {
-            padding-right: 50px;
-        }
-        
         .toggle-visibility {
             position: absolute;
-            right: 15px;
+            right: 0.5rem;
             top: 50%;
             transform: translateY(-50%);
             background: none;
             border: none;
             cursor: pointer;
-            font-size: 1.2rem;
-            opacity: 0.6;
-            transition: opacity 0.3s;
-        }
-        
-        .toggle-visibility:hover {
-            opacity: 1;
+            font-size: 14pt;
+            padding: 0.25rem;
         }
         
         .btn {
-            padding: 15px 30px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
+            padding: 0.75rem 1.5rem;
+            border: 2px solid #000;
+            background: #000;
+            color: #fff;
+            font-family: "Times New Roman", Times, serif;
+            font-size: 11pt;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: 'Noto Sans KR', sans-serif;
+            text-align: center;
+            transition: all 0.2s;
         }
         
-        .btn-primary {
-            background: var(--gradient-2);
-            color: white;
-            box-shadow: 0 5px 20px rgba(52, 152, 219, 0.4);
-            width: 100%;
-            font-size: 1.1rem;
+        .btn:hover:not(:disabled) {
+            background: #fff;
+            color: #000;
         }
         
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(52, 152, 219, 0.5);
-        }
-        
-        .btn-primary:disabled {
-            opacity: 0.6;
+        .btn:disabled {
+            opacity: 0.5;
             cursor: not-allowed;
         }
         
-        .btn-group {
+        .btn-primary {
+            width: 100%;
+        }
+        
+        .btn-export {
+            padding: 0.5rem 1rem;
+            font-size: 10pt;
+            background: #fff;
+            color: #000;
+        }
+        
+        .btn-export:hover {
+            background: #000;
+            color: #fff;
+        }
+        
+        .export-buttons {
             display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        .btn-secondary {
-            background: white;
-            color: var(--primary-color);
-            border: 2px solid var(--primary-color);
-            flex: 1;
-        }
-        
-        .btn-secondary:hover {
-            background: var(--primary-color);
-            color: white;
+            gap: 0.5rem;
+            margin-top: 1rem;
         }
         
         .loading {
             display: none;
             text-align: center;
-            padding: 40px;
+            padding: 3rem;
         }
         
         .loading.active {
@@ -255,13 +179,13 @@
         }
         
         .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary-color);
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #000;
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+            margin: 0 auto 1rem;
         }
         
         @keyframes spin {
@@ -275,426 +199,246 @@
         
         .analysis-result.active {
             display: block;
-            animation: fadeIn 0.6s ease-out;
         }
         
         .result-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 10px;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #000;
         }
         
         .result-header h3 {
-            color: var(--dark);
-            font-size: 1.4rem;
-            font-weight: 600;
-        }
-        
-        .export-buttons {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .btn-export {
-            padding: 10px 20px;
-            font-size: 0.9rem;
-            background: white;
-            color: var(--secondary-color);
-            border: 2px solid var(--secondary-color);
-        }
-        
-        .btn-export:hover {
-            background: var(--secondary-color);
-            color: white;
+            font-size: 14pt;
+            margin-bottom: 0.5rem;
         }
         
         .alert {
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid #000;
             display: none;
         }
         
         .alert.active {
             display: block;
-            animation: slideDown 0.3s ease-out;
-        }
-        
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
         
         .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border-left: 4px solid var(--success-color);
+            background: #e8f5e9;
         }
         
         .alert-danger {
-            background: #f8d7da;
-            color: #721c24;
-            border-left: 4px solid var(--danger-color);
+            background: #ffebee;
         }
         
         .alert-warning {
-            background: #fff3cd;
-            color: #856404;
-            border-left: 4px solid var(--warning-color);
+            background: #fff3e0;
         }
         
-        .hint {
-            font-size: 0.9rem;
-            color: #7f8c8d;
+        #analysisOutput h1 {
+            font-size: 18pt;
+            margin: 1.5rem 0 1rem 0;
+            border-bottom: 2px solid #000;
+            padding-bottom: 0.5rem;
+        }
+        
+        #analysisOutput h2 {
+            font-size: 14pt;
+            margin: 1.25rem 0 0.75rem 0;
+            border-bottom: 1px solid #000;
+            padding-bottom: 0.25rem;
+        }
+        
+        #analysisOutput h3 {
+            font-size: 12pt;
+            margin: 1rem 0 0.5rem 0;
+            font-weight: 700;
+        }
+        
+        #analysisOutput table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            border: 1px solid #000;
+        }
+        
+        #analysisOutput th,
+        #analysisOutput td {
+            padding: 0.5rem;
+            border: 1px solid #000;
+            text-align: left;
+        }
+        
+        #analysisOutput th {
+            background: #f5f5f5;
+            font-weight: 700;
+        }
+        
+        #analysisOutput ul,
+        #analysisOutput ol {
+            margin: 0.75rem 0;
+            padding-left: 2rem;
+        }
+        
+        #analysisOutput li {
+            margin-bottom: 0.5rem;
+        }
+        
+        #analysisOutput blockquote {
+            border-left: 3px solid #000;
+            padding-left: 1rem;
+            margin: 1rem 0;
             font-style: italic;
-            margin-top: 8px;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border-left: 3px solid var(--primary-color);
         }
         
-        .token-counter {
-            background: rgba(255,255,255,0.15);
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            display: inline-block;
-            margin-top: 10px;
+        #analysisOutput p {
+            margin: 0.75rem 0;
+        }
+        
+        .initial-message {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #666;
+        }
+        
+        .initial-message h3 {
+            font-size: 14pt;
+            color: #000;
+            margin-bottom: 1rem;
         }
         
         @media (max-width: 1024px) {
             .main-content {
                 grid-template-columns: 1fr;
             }
-            
-            .input-panel {
-                border-right: none;
-                border-bottom: 3px solid #dee2e6;
-                max-height: none;
-            }
-            
-            .output-panel {
-                max-height: none;
-            }
         }
         
-        @media (max-width: 768px) {
+        @media print {
             body {
-                padding: 10px;
+                padding: 0;
             }
-            
-            .input-panel, .output-panel {
-                padding: 20px;
-            }
-            
-            .header {
-                padding: 25px 20px;
-            }
-            
-            .btn-group {
-                flex-direction: column;
-            }
-            
+            .input-panel,
             .export-buttons {
-                flex-direction: column;
-                width: 100%;
-            }
-        }
-        
-        /* 분석 결과 스타일 */
-        #analysisOutput {
-            font-size: 0.95rem;
-            line-height: 1.8;
-        }
-        
-        #analysisOutput h1 {
-            color: var(--primary-color);
-            font-size: 1.8rem;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 3px solid var(--primary-color);
-        }
-        
-        #analysisOutput h2 {
-            color: var(--secondary-color);
-            font-size: 1.5rem;
-            margin-top: 30px;
-            margin-bottom: 15px;
-        }
-        
-        #analysisOutput h3 {
-            color: var(--dark);
-            font-size: 1.2rem;
-            margin-top: 20px;
-            margin-bottom: 10px;
-        }
-        
-        #analysisOutput table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        #analysisOutput th {
-            background: var(--gradient-2);
-            color: white;
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-        }
-        
-        #analysisOutput td {
-            padding: 12px;
-            border: 1px solid #e9ecef;
-        }
-        
-        #analysisOutput tr:nth-child(even) {
-            background: #f8f9fa;
-        }
-        
-        #analysisOutput ul, #analysisOutput ol {
-            margin-left: 25px;
-            margin-bottom: 15px;
-        }
-        
-        #analysisOutput li {
-            margin-bottom: 8px;
-        }
-        
-        #analysisOutput code {
-            background: #f8f9fa;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: 'Monaco', 'Menlo', monospace;
-            font-size: 0.9em;
-            color: var(--danger-color);
-        }
-        
-        #analysisOutput pre {
-            background: #2d3748;
-            color: #e2e8f0;
-            padding: 20px;
-            border-radius: 10px;
-            overflow-x: auto;
-            margin: 15px 0;
-        }
-        
-        #analysisOutput blockquote {
-            border-left: 4px solid var(--primary-color);
-            padding-left: 20px;
-            margin: 15px 0;
-            color: #555;
-            font-style: italic;
-        }
-        
-        .badge {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-right: 8px;
-            margin-bottom: 8px;
-        }
-        
-        .badge-primary {
-            background: var(--primary-color);
-            color: white;
-        }
-        
-        .badge-success {
-            background: var(--success-color);
-            color: white;
-        }
-        
-        .badge-warning {
-            background: var(--warning-color);
-            color: white;
-        }
-        
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
+                display: none;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🎓 수능 문항 분석 시스템</h1>
-            <p>이원목적분류표 기반 과학적 문항 분석 | 교육평가 이론 × AI 분석 엔진</p>
-            <div class="token-counter" id="tokenInfo">
-                💡 토큰 절약형 템플릿 출력 시스템
-            </div>
-        </div>
-        
-        <div class="main-content">
-            <!-- 입력 패널 -->
-            <div class="input-panel">
-                <div class="section-header">📝 문항 정보 입력</div>
-                
-                <div id="alertContainer"></div>
-                
-                <!-- API Provider Selection -->
-                <div class="form-group">
-                    <label class="form-label">🤖 AI 제공자 선택</label>
-                    <select class="form-control" id="apiProvider">
-                        <option value="claude">Claude (Anthropic)</option>
-                        <option value="gemini">Gemini (Google)</option>
-                    </select>
-                </div>
-                
-                <!-- Model Selection -->
-                <div class="form-group" id="modelSelectionGroup">
-                    <label class="form-label">🎯 모델 선택</label>
-                    <select class="form-control" id="modelSelection">
-                        <!-- Options will be populated dynamically -->
-                    </select>
-                </div>
-                
-                <!-- API Key -->
-                <div class="form-group">
-                    <label class="form-label" id="apiKeyLabel">🔑 Claude API Key</label>
-                    <div class="api-key-input">
-                        <input 
-                            type="password" 
-                            class="form-control" 
-                            id="apiKey" 
-                            placeholder="API 키를 입력하세요..."
-                        >
-                        <button class="toggle-visibility" id="toggleApiKey">👁️</button>
-                    </div>
-                    <div class="hint" id="apiKeyHint">
-                        API Key는 브라우저에 저장되며, Anthropic Claude API를 통해 분석합니다.<br>
-                        <a href="https://console.anthropic.com/" target="_blank" id="apiKeyLink">여기서 발급받으세요</a>
-                    </div>
-                </div>
-                
-                <!-- 문항 출처 -->
-                <div class="form-group">
-                    <label class="form-label">📚 문항 출처 (선택사항)</label>
-                    <input 
-                        type="text" 
-                        class="form-control" 
-                        id="source" 
-                        placeholder="예: 2024학년도 수능 영어 21번"
-                    >
-                </div>
-                
-                <!-- 문제 본문 -->
-                <div class="form-group">
-                    <label class="form-label">📖 문제 본문</label>
-                    <textarea 
-                        class="form-control" 
-                        id="question" 
-                        placeholder="문제의 지문과 질문을 입력하세요..."
-                        rows="8"
-                    ></textarea>
-                    <div class="hint">
-                        지문, 도표, 그림 설명 등을 모두 포함해주세요.
-                    </div>
-                </div>
-                
-                <!-- 선택지 -->
-                <div class="form-group">
-                    <label class="form-label">✅ 선택지</label>
-                    <textarea 
-                        class="form-control" 
-                        id="choices" 
-                        placeholder="① 선택지 1&#10;② 선택지 2&#10;③ 선택지 3&#10;④ 선택지 4&#10;⑤ 선택지 5"
-                        rows="6"
-                    ></textarea>
-                </div>
-                
-                <!-- 정답 -->
-                <div class="form-group">
-                    <label class="form-label">💯 정답 (선택사항)</label>
-                    <input 
-                        type="text" 
-                        class="form-control" 
-                        id="answer" 
-                        placeholder="예: ③"
-                    >
-                </div>
-                
-                <!-- 해설 -->
-                <div class="form-group">
-                    <label class="form-label">📝 해설 (선택사항)</label>
-                    <textarea 
-                        class="form-control" 
-                        id="explanation" 
-                        placeholder="기존 해설이 있다면 입력하세요..."
-                        rows="5"
-                    ></textarea>
-                </div>
-                
-                <!-- 분석 버튼 -->
-                <button class="btn btn-primary" id="analyzeBtn">
-                    🔍 AI 분석 시작
-                </button>
+    <div class="header">
+        <h1>수능 문항 분석 시스템</h1>
+        <p>이원목적분류표 기반 과학적 문항 분석</p>
+    </div>
+    
+    <div class="main-content">
+        <!-- 입력 패널 -->
+        <div class="panel input-panel">
+            <h2 class="panel-title">문항 정보 입력</h2>
+            
+            <div id="alertContainer"></div>
+            
+            <div class="form-group">
+                <label class="form-label">AI 제공자</label>
+                <select class="form-control" id="apiProvider">
+                    <option value="claude">Claude (Anthropic)</option>
+                    <option value="gemini">Gemini (Google)</option>
+                </select>
             </div>
             
-            <!-- 출력 패널 -->
-            <div class="output-panel">
-                <div class="loading" id="loadingIndicator">
-                    <div class="spinner"></div>
-                    <p>AI가 문항을 분석하고 있습니다...</p>
-                    <p style="font-size: 0.9rem; color: #7f8c8d; margin-top: 10px;">
-                        이원목적분류표 기반 종합 분석 진행 중
-                    </p>
+            <div class="form-group">
+                <label class="form-label">모델</label>
+                <select class="form-control" id="modelSelection"></select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" id="apiKeyLabel">API Key</label>
+                <div class="api-key-input">
+                    <input 
+                        type="password" 
+                        class="form-control" 
+                        id="apiKey" 
+                        placeholder="API 키를 입력하세요"
+                    >
+                    <button class="toggle-visibility" id="toggleApiKey">👁</button>
                 </div>
-                
-                <div class="analysis-result" id="analysisResult">
-                    <div class="result-header">
-                        <h3>📊 분석 결과</h3>
-                        <div class="export-buttons">
-                            <button class="btn btn-export" id="exportPDF">📄 PDF</button>
-                            <button class="btn btn-export" id="exportHTML">🌐 HTML</button>
-                            <button class="btn btn-export" id="exportMD">📝 MD</button>
-                        </div>
+                <div class="hint" id="apiKeyHint">브라우저에 저장됩니다</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">문항 출처 (선택)</label>
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    id="source" 
+                    placeholder="예: 2024학년도 수능 영어 21번"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">문제 본문</label>
+                <textarea 
+                    class="form-control" 
+                    id="question" 
+                    placeholder="문제의 지문과 질문을 입력하세요"
+                    rows="8"
+                ></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">선택지</label>
+                <textarea 
+                    class="form-control" 
+                    id="choices" 
+                    placeholder="① 선택지 1&#10;② 선택지 2&#10;③ 선택지 3&#10;④ 선택지 4&#10;⑤ 선택지 5"
+                    rows="6"
+                ></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">정답 (선택)</label>
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    id="answer" 
+                    placeholder="예: ③"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">해설 (선택)</label>
+                <textarea 
+                    class="form-control" 
+                    id="explanation" 
+                    placeholder="기존 해설이 있다면 입력하세요"
+                    rows="5"
+                ></textarea>
+            </div>
+            
+            <button class="btn btn-primary" id="analyzeBtn">AI 분석 시작</button>
+        </div>
+        
+        <!-- 출력 패널 -->
+        <div class="panel output-panel">
+            <div class="loading" id="loadingIndicator">
+                <div class="spinner"></div>
+                <p>AI가 문항을 분석하고 있습니다...</p>
+            </div>
+            
+            <div class="analysis-result" id="analysisResult">
+                <div class="result-header">
+                    <h3>분석 결과</h3>
+                    <div class="export-buttons">
+                        <button class="btn btn-export" id="exportPDF">PDF</button>
+                        <button class="btn btn-export" id="exportHTML">HTML</button>
+                        <button class="btn btn-export" id="exportMD">MD</button>
                     </div>
-                    
-                    <div id="analysisOutput"></div>
                 </div>
-                
-                <div id="initialMessage" style="text-align: center; padding: 60px 20px; color: #7f8c8d;">
-                    <div style="font-size: 4rem; margin-bottom: 20px;">📊</div>
-                    <h3 style="color: var(--dark); margin-bottom: 15px;">문항 분석 시스템</h3>
-                    <p style="line-height: 1.8;">
-                        수능 문항을 입력하시면<br>
-                        <strong>이원목적분류표 기반</strong>의 과학적 분석을<br>
-                        제공해드립니다.
-                    </p>
-                    <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px; text-align: left; max-width: 500px; margin-left: auto; margin-right: auto;">
-                        <p style="font-weight: 600; margin-bottom: 10px; color: var(--primary-color);">제공되는 분석 항목:</p>
-                        <ul style="list-style: none; padding-left: 0;">
-                            <li>✓ 이원목적분류표 매핑</li>
-                            <li>✓ 블룸 분류학 인지 수준 분석</li>
-                            <li>✓ 문항 타당도/신뢰도 평가</li>
-                            <li>✓ 출제 의도 및 측정 능력</li>
-                            <li>✓ 풀이 전략 및 해설</li>
-                            <li>✓ 오답 분석 및 개선안</li>
-                            <li>✓ 연관 학습 자료 추천</li>
-                        </ul>
-                    </div>
-                </div>
+                <div id="analysisOutput"></div>
+            </div>
+            
+            <div id="initialMessage" class="initial-message">
+                <h3>문항 분석 시스템</h3>
+                <p>수능 문항을 입력하시면<br>이원목적분류표 기반의 과학적 분석을 제공합니다</p>
             </div>
         </div>
     </div>
@@ -713,13 +457,13 @@
         // 모델 목록
         const models = {
             claude: [
-                { value: 'claude-sonnet-4-20250514', label: 'Claude Sonnet 4 (최신)' },
+                { value: 'claude-sonnet-4-20250514', label: 'Claude Sonnet 4' },
                 { value: 'claude-3-5-sonnet-20241022', label: 'Claude 3.5 Sonnet' },
                 { value: 'claude-3-opus-20240229', label: 'Claude 3 Opus' }
             ],
             gemini: [
-                { value: 'gemini-2.0-flash-exp', label: 'Gemini 2.0 Flash (Experimental)' },
-                { value: 'gemini-exp-1206', label: 'Gemini 2.5 Pro (Experimental)' },
+                { value: 'gemini-2.0-flash-exp', label: 'Gemini 2.0 Flash' },
+                { value: 'gemini-exp-1206', label: 'Gemini 2.5 Pro' },
                 { value: 'gemini-2.0-flash-thinking-exp-1219', label: 'Gemini 2.0 Flash Thinking' }
             ]
         };
@@ -731,7 +475,6 @@
             apiKey: document.getElementById('apiKey'),
             apiKeyLabel: document.getElementById('apiKeyLabel'),
             apiKeyHint: document.getElementById('apiKeyHint'),
-            apiKeyLink: document.getElementById('apiKeyLink'),
             toggleApiKey: document.getElementById('toggleApiKey'),
             source: document.getElementById('source'),
             question: document.getElementById('question'),
@@ -751,12 +494,9 @@
         
         // 초기화
         function initializeUI() {
-            // API Provider 설정
             elements.apiProvider.value = state.apiProvider;
             updateModelSelection();
             updateAPIKeyUI();
-            
-            // API Key 불러오기
             if (state.apiKey) {
                 elements.apiKey.value = state.apiKey;
             }
@@ -775,7 +515,6 @@
                 elements.modelSelection.appendChild(option);
             });
             
-            // 저장된 모델 선택 또는 첫 번째 모델 선택
             if (state.model && modelList.find(m => m.value === state.model)) {
                 elements.modelSelection.value = state.model;
             } else {
@@ -789,23 +528,17 @@
             const provider = elements.apiProvider.value;
             
             if (provider === 'claude') {
-                elements.apiKeyLabel.textContent = '🔑 Claude API Key';
+                elements.apiKeyLabel.textContent = 'Claude API Key';
                 elements.apiKey.placeholder = 'sk-ant-api03-...';
-                elements.apiKeyHint.innerHTML = `
-                    API Key는 브라우저에 저장되며, Anthropic Claude API를 통해 분석합니다.<br>
-                    <a href="https://console.anthropic.com/" target="_blank">여기서 발급받으세요</a>
-                `;
+                elements.apiKeyHint.textContent = '브라우저에 저장됩니다';
             } else if (provider === 'gemini') {
-                elements.apiKeyLabel.textContent = '🔑 Gemini API Key';
+                elements.apiKeyLabel.textContent = 'Gemini API Key';
                 elements.apiKey.placeholder = 'AIza...';
-                elements.apiKeyHint.innerHTML = `
-                    API Key는 브라우저에 저장되며, Google Gemini API를 통해 분석합니다.<br>
-                    <a href="https://makersuite.google.com/app/apikey" target="_blank">여기서 발급받으세요</a>
-                `;
+                elements.apiKeyHint.textContent = '브라우저에 저장됩니다';
             }
         }
         
-        // 이벤트 리스너 - API Provider 변경
+        // 이벤트 리스너
         elements.apiProvider.addEventListener('change', () => {
             state.apiProvider = elements.apiProvider.value;
             localStorage.setItem('apiProvider', state.apiProvider);
@@ -813,26 +546,23 @@
             updateAPIKeyUI();
         });
         
-        // 이벤트 리스너 - Model 변경
         elements.modelSelection.addEventListener('change', () => {
             state.model = elements.modelSelection.value;
             localStorage.setItem('selectedModel', state.model);
         });
         
-        initializeUI();
-        
-        // API Key 토글
         elements.toggleApiKey.addEventListener('click', () => {
             const type = elements.apiKey.type === 'password' ? 'text' : 'password';
             elements.apiKey.type = type;
-            elements.toggleApiKey.textContent = type === 'password' ? '👁️' : '🙈';
+            elements.toggleApiKey.textContent = type === 'password' ? '👁' : '🙈';
         });
         
-        // API Key 저장
         elements.apiKey.addEventListener('change', () => {
             state.apiKey = elements.apiKey.value.trim();
             localStorage.setItem('apiKey', state.apiKey);
         });
+        
+        initializeUI();
         
         // 알림 표시
         function showAlert(message, type = 'success') {
@@ -850,7 +580,6 @@
         
         // 분석 실행
         elements.analyzeBtn.addEventListener('click', async () => {
-            // 입력 검증
             if (!state.apiKey) {
                 showAlert('API Key를 입력해주세요.', 'danger');
                 elements.apiKey.focus();
@@ -869,14 +598,12 @@
                 return;
             }
             
-            // UI 상태 변경
             elements.analyzeBtn.disabled = true;
             elements.loadingIndicator.classList.add('active');
             elements.analysisResult.classList.remove('active');
             elements.initialMessage.style.display = 'none';
             
             try {
-                // 분석 프롬프트 생성
                 const prompt = generateAnalysisPrompt({
                     source: elements.source.value.trim(),
                     question: elements.question.value.trim(),
@@ -885,7 +612,6 @@
                     explanation: elements.explanation.value.trim()
                 });
                 
-                // API 호출
                 let analysisText;
                 
                 if (state.apiProvider === 'claude') {
@@ -896,7 +622,6 @@
                     throw new Error('지원하지 않는 API 제공자입니다.');
                 }
                 
-                // 분석 결과 저장
                 state.analysisData = {
                     source: elements.source.value.trim(),
                     question: elements.question.value.trim(),
@@ -907,9 +632,7 @@
                     timestamp: new Date().toISOString()
                 };
                 
-                // 결과 표시
                 displayAnalysis(analysisText);
-                
                 showAlert('분석이 완료되었습니다!', 'success');
                 
             } catch (error) {
@@ -987,15 +710,13 @@
 
 ## 📋 문항 정보
 
-${data.source ? `**출처:** ${data.source}\n` : ''}
-**문제:**
+${data.source ? `**출처:** ${data.source}\n` : ''}**문제:**
 ${data.question}
 
 **선택지:**
 ${data.choices}
 
-${data.answer ? `**정답:** ${data.answer}\n` : ''}
-${data.explanation ? `**기존 해설:**\n${data.explanation}\n` : ''}
+${data.answer ? `**정답:** ${data.answer}\n` : ''}${data.explanation ? `**기존 해설:**\n${data.explanation}\n` : ''}
 
 ## 📊 분석 요청사항
 
@@ -1003,10 +724,10 @@ ${data.explanation ? `**기존 해설:**\n${data.explanation}\n` : ''}
 
 \`\`\`html
 <div class="analysis-container">
-    <h1>📊 수능 문항 종합 분석 보고서</h1>
+    <h1>수능 문항 종합 분석 보고서</h1>
     
     <section class="meta-info">
-        <h2>📋 문항 메타정보</h2>
+        <h2>문항 메타정보</h2>
         <table>
             <tr><th>항목</th><th>내용</th></tr>
             <tr><td>출처</td><td>[출처 정보]</td></tr>
@@ -1019,16 +740,16 @@ ${data.explanation ? `**기존 해설:**\n${data.explanation}\n` : ''}
     </section>
     
     <section class="taxonomy">
-        <h2>🎯 이원목적분류표 분석</h2>
+        <h2>이원목적분류표 분석</h2>
         
-        <h3>📚 내용 영역</h3>
+        <h3>내용 영역</h3>
         <ul>
             <li><strong>주제/소재:</strong> [구체적 주제]</li>
             <li><strong>교육과정 연계:</strong> [성취기준]</li>
             <li><strong>배경지식 필요도:</strong> [상/중/하]</li>
         </ul>
         
-        <h3>🧠 행동 영역 (블룸 분류학)</h3>
+        <h3>행동 영역 (블룸 분류학)</h3>
         <table>
             <tr><th>인지 수준</th><th>해당 여부</th><th>세부 설명</th></tr>
             <tr><td>지식</td><td>[O/X]</td><td>[설명]</td></tr>
@@ -1039,11 +760,11 @@ ${data.explanation ? `**기존 해설:**\n${data.explanation}\n` : ''}
             <tr><td>평가</td><td>[O/X]</td><td>[설명]</td></tr>
         </table>
         
-        <p><strong>🎯 핵심 측정 능력:</strong> [구체적 능력 기술]</p>
+        <p><strong>핵심 측정 능력:</strong> [구체적 능력 기술]</p>
     </section>
     
     <section class="design-principle">
-        <h2>🔬 문항 설계 원리 분석</h2>
+        <h2>문항 설계 원리 분석</h2>
         
         <h3>출제 의도</h3>
         <p>[출제자가 측정하고자 한 능력]</p>
@@ -1064,11 +785,11 @@ ${data.explanation ? `**기존 해설:**\n${data.explanation}\n` : ''}
     </section>
     
     <section class="solution">
-        <h2>💡 풀이 전략 및 정답 해설</h2>
+        <h2>풀이 전략 및 정답 해설</h2>
         
-        <h3>🎯 정답: [번호]</h3>
+        <h3>정답: [번호]</h3>
         
-        <h3>📖 단계별 풀이 과정</h3>
+        <h3>단계별 풀이 과정</h3>
         <ol>
             <li><strong>1단계:</strong> [지문 구조 파악]</li>
             <li><strong>2단계:</strong> [핵심 개념 추출]</li>
@@ -1076,12 +797,12 @@ ${data.explanation ? `**기존 해설:**\n${data.explanation}\n` : ''}
             <li><strong>4단계:</strong> [정답 확정 근거]</li>
         </ol>
         
-        <h3>🔍 근거 문장</h3>
+        <h3>근거 문장</h3>
         <blockquote>
         [지문에서 정답의 결정적 근거가 되는 문장 인용]
         </blockquote>
         
-        <h3>❌ 오답 분석</h3>
+        <h3>오답 분석</h3>
         <ul>
             <li><strong>①번:</strong> [왜 틀렸는지]</li>
             <li><strong>②번:</strong> [왜 틀렸는지]</li>
@@ -1092,7 +813,7 @@ ${data.explanation ? `**기존 해설:**\n${data.explanation}\n` : ''}
     </section>
     
     <section class="quality-evaluation">
-        <h2>📈 문항 품질 평가</h2>
+        <h2>문항 품질 평가</h2>
         
         <h3>타당도 분석</h3>
         <ul>
@@ -1121,23 +842,23 @@ ${data.explanation ? `**기존 해설:**\n${data.explanation}\n` : ''}
     </section>
     
     <section class="learning-materials">
-        <h2>📚 연관 학습 자료 및 추천</h2>
+        <h2>연관 학습 자료 및 추천</h2>
         
-        <h3>🎯 이 문항을 위한 학습 전략</h3>
+        <h3>이 문항을 위한 학습 전략</h3>
         <ul>
             <li>[학습 포인트 1]</li>
             <li>[학습 포인트 2]</li>
             <li>[학습 포인트 3]</li>
         </ul>
         
-        <h3>📖 추천 학습 자료</h3>
+        <h3>추천 학습 자료</h3>
         <ul>
             <li><strong>교재:</strong> [추천 교재]</li>
             <li><strong>개념 정리:</strong> [핵심 개념 정리]</li>
             <li><strong>유사 문항:</strong> [어떤 유형의 문제를 더 풀어야 하는지]</li>
         </ul>
         
-        <h3>🔄 연관 문항 유형</h3>
+        <h3>연관 문항 유형</h3>
         <ul>
             <li>[유형 1]</li>
             <li>[유형 2]</li>
@@ -1145,7 +866,7 @@ ${data.explanation ? `**기존 해설:**\n${data.explanation}\n` : ''}
     </section>
     
     <section class="summary">
-        <h2>✨ 종합 의견</h2>
+        <h2>종합 의견</h2>
         <p>[이 문항의 전체적인 평가와 학습자에게 주는 시사점]</p>
     </section>
 </div>
@@ -1161,45 +882,17 @@ ${data.explanation ? `**기존 해설:**\n${data.explanation}\n` : ''}
         
         // 분석 결과 표시
         function displayAnalysis(analysisText) {
-            // HTML 추출 (```html ... ``` 사이의 내용)
             const htmlMatch = analysisText.match(/```html\s*([\s\S]*?)\s*```/);
             let htmlContent;
             
             if (htmlMatch) {
                 htmlContent = htmlMatch[1];
             } else {
-                // HTML 태그가 없으면 마크다운으로 변환
-                htmlContent = convertMarkdownToHTML(analysisText);
+                htmlContent = analysisText;
             }
             
             elements.analysisOutput.innerHTML = htmlContent;
             elements.analysisResult.classList.add('active');
-        }
-        
-        // 마크다운을 HTML로 변환 (간단한 버전)
-        function convertMarkdownToHTML(markdown) {
-            let html = markdown;
-            
-            // 헤더
-            html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
-            html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
-            html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
-            
-            // 볼드
-            html = html.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
-            
-            // 리스트
-            html = html.replace(/^\* (.*$)/gim, '<li>$1</li>');
-            html = html.replace(/^\d+\. (.*$)/gim, '<li>$1</li>');
-            
-            // 리스트 래핑
-            html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
-            
-            // 단락
-            html = html.replace(/\n\n/g, '</p><p>');
-            html = '<p>' + html + '</p>';
-            
-            return html;
         }
         
         // 내보내기 이벤트
